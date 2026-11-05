@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Manajemen AC Universitas</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col md:flex-row antialiased">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="w-full md:w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col justify-between p-4 md:p-5 shadow-2xl z-30">
+        <div>
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3 mb-8 px-2">
+                <div class="p-2.5 bg-blue-600 rounded-xl text-white shadow-lg shadow-blue-500/30">
+                    <i data-lucide="snowflake" class="w-6 h-6 animate-spin-slow"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg leading-tight tracking-wide">UniClimate</h1>
+                    <p class="text-[11px] text-slate-400 font-medium">Smart Campus HVAC</p>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="space-y-1.5" id="sidebarNav">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold transition-all bg-blue-600 text-white shadow-md shadow-blue-600/20">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>Dashboard Utama</span>
+                </button>
+                <button onclick="switchTab('control-center')" id="nav-control-center" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i data-lucide="sliders" class="w-4 h-4"></i>
+                    <span>Control Center</span>
+                </button>
+                <button onclick="switchTab('devices')" id="nav-devices" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i data-lucide="cpu" class="w-4 h-4"></i>
+                    <span>Daftar Perangkat</span>
+                </button>
+                <button onclick="switchTab('schedules')" id="nav-schedules" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span>Jadwal Otomatis</span>
+                </button>
+                <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i data-lucide="zap" class="w-4 h-4"></i>
+                    <span>Analitik Daya</span>
+                </button>
+                <button onclick="switchTab('maintenance')" id="nav-maintenance" class="nav-btn w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                        <span>Pemeliharaan</span>
+                    </div>
+                    <span id="maintenanceBadge" class="bg-amber-500/20 text-amber-400 text-[10px] px-2 py-0.5 rounded-full border border-amber-500/30">2</span>
+                </button>
+                <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    <span>Pengaturan</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Sidebar Footer / Profile -->
+        <div class="pt-4 border-t border-slate-800 mt-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold text-xs">
+                        AD
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-white">Admin Teknis</p>
+                        <p class="text-[10px] text-slate-400">Kampus Utama</p>
+                    </div>
+                </div>
+                <button onclick="showToast('Sesi administrator telah diperbarui')" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-colors" title="Refresh Sesi">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        <!-- TOP HEADER -->
+        <header class="bg-white border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-20 shadow-sm">
+            <div>
+                <h2 id="pageTitle" class="text-lg font-bold text-slate-800">Dashboard Utama</h2>
+                <p class="text-xs text-slate-500">Sistem Kendali & Pemantauan AC Kampus Terintegrasi</p>
+            </div>
+
+            <!-- Header Actions & Notifications -->
+            <div class="flex items-center space-x-3">
+                <!-- Notifications Dropdown Button -->
+                <div class="relative">
+                    <button onclick="toggleNotifications()" class="relative p-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all">
+                        <i data-lucide="bell" class="w-4 h-4"></i>
+                        <span id="notifBadge" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">2</span>
+                    </button>
+
+                    <!-- Notifications Dropdown Menu -->
+                    <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 p-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+                            <h4 class="text-xs font-bold text-slate-800">Notifikasi System</h4>
+                            <button onclick="clearNotifications()" class="text-[10px] text-blue-600 hover:underline font-semibold">Tandai Dibaca</button>
+                        </div>
+                        <div class="space-y-2.5 text-xs" id="notifList">
+                            <div class="p-2.5 bg-amber-50 border border-amber-100 rounded-xl flex items-start space-x-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"></i>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Filter Kotor: Lab Komputer 1</p>
+                                    <p class="text-[10px] text-slate-500">Waktunya melakukan pembersihan filter mingguan.</p>
+                                </div>
+                            </div>
+                            <div class="p-2.5 bg-blue-50 border border-blue-100 rounded-xl flex items-start space-x-2">
+                                <i data-lucide="info" class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5"></i>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Jadwal Otomatis Malam</p>
+                                    <p class="text-[10px] text-slate-500">AC Gedung Rektorat dimatikan pukul 22:00.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="h-6 w-px bg-slate-200"></div>
+
+                <button onclick="toggleModal('modalAddDevice', true)" class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold text-xs transition-all shadow-md shadow-blue-500/20 active:scale-95">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Tambah Unit AC</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto w-full">
+
+            <!-- TAB 1: DASHBOARD UTAMA -->
+            <div id="tab-dashboard" class="tab-content active space-y-6">
+                <!-- STAT CARDS OVERVIEW -->
+                <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Perangkat</p>
+                                <h3 id="statTotal" class="text-2xl font-extrabold text-slate-800 mt-1">0</h3>
+                            </div>
+                            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                                <i data-lucide="cpu" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-3 flex items-center space-x-1">
+                            <span class="text-emerald-600 font-semibold flex items-center">
+                                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 mr-1"></i> Connected
+                            </span>
+                            <span>di 4 Gedung</span>
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Status Operasi</p>
+                                <h3 id="statActive" class="text-2xl font-extrabold text-slate-800 mt-1">0 <span class="text-xs font-normal text-slate-500">Aktif</span></h3>
+                            </div>
+                            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                                <i data-lucide="power" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-500 flex items-center justify-between">
+                            <span id="statInactive" class="font-medium text-slate-600">0 Non-aktif</span>
+                            <div class="w-20 bg-slate-100 rounded-full h-2 overflow-hidden">
+                                <div id="statActiveBar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Suhu Rata-rata</p>
+                                <h3 id="statAvgTemp" class="text-2xl font-extrabold text-slate-800 mt-1">--°C</h3>
+                            </div>
+                            <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                                <i data-lucide="thermometer" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-amber-600 font-medium mt-3">Target Standard: 22°C - 24°C</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Konsumsi Daya</p>
+                                <h3 id="statPower" class="text-2xl font-extrabold text-slate-800 mt-1">0 kW</h3>
+                            </div>
+                            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                                <i data-lucide="zap" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-emerald-600 font-semibold mt-3 flex items-center">
+                            <i data-lucide="leaf" class="w-3.5 h-3.5 mr-1"></i>
+                            <span id="ecoStatusText">Eco Mode Disarankan</span>
+                        </p>
+                    </div>
+                </section>
+
+                <!-- QUICK FILTER & SEARCH BAR -->
+                <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-center">
+                    <!-- Gedung Filter Buttons -->
+                    <div class="flex items-center space-x-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0" id="buildingFilters">
+                        <button onclick="filterBuilding('all')" class="filter-btn active-filter px-4 py-2 rounded-xl text-xs font-bold transition-all bg-blue-600 text-white shadow-sm">
+                            Semua Gedung
+                        </button>
+                        <button onclick="filterBuilding('Gedung Rektorat')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                            Rektorat
+                        </button>
+                        <button onclick="filterBuilding('Fakultas Teknik')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                            Teknik
+                        </button>
+                        <button onclick="filterBuilding('FMIPA')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                            FMIPA
+                        </button>
+                        <button onclick="filterBuilding('Perpustakaan Pusat')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                            Perpustakaan
+                        </button>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="flex items-center space-x-3 w-full md:w-auto">
+                        <select id="statusFilter" onchange="renderDevices()" class="bg-slate-100 border-none text-xs font-bold text-slate-700 px-3 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="all">Semua Status</option>
+                            <option value="on">Hanya ON</option>
+                            <option value="off">Hanya OFF</option>
+                        </select>
+                        <div class="relative flex-1 md:w-64">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" id="searchInput" onkeyup="renderDevices()" placeholder="Cari nama ruangan..." class="w-full bg-slate-100 text-slate-800 text-xs font-medium pl-9 pr-4 py-2.5 rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- AC DEVICES GRID -->
+                <section>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+                            <span>Daftar Perangkat AC Aktif</span>
+                            <span id="deviceCountBadge" class="bg-slate-200 text-slate-700 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+                        </h3>
+                    </div>
+                    <div id="deviceGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                    <div id="emptyState" class="hidden text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300">
+                        <i data-lucide="snowflake" class="w-12 h-12 text-slate-300 mx-auto mb-3"></i>
+                        <h4 class="text-sm font-bold text-slate-700">Tidak Ada Perangkat Ditemukan</h4>
+                        <p class="text-xs text-slate-400 mt-1">Gunakan kata kunci atau filter yang berbeda.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 2: CONTROL CENTER (KONTROL MASSAL & PRESETS) -->
+            <div id="tab-control-center" class="tab-content space-y-6">
+                <section class="bg-slate-900 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <h3 class="text-base font-bold text-white mb-1">Pusat Kontrol Massal (Master Controls)</h3>
+                    <p class="text-xs text-slate-400 mb-6">Kelola seluruh unit pendingin ruangan di seluruh area kampus secara serentak.</p>
+
+                    <!-- Global Action Buttons -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                        <button onclick="masterPower(true)" class="p-4 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2">
+                            <i data-lucide="power" class="w-5 h-5 text-emerald-400"></i>
+                            <span>Nyalakan Semua AC</span>
+                        </button>
+                        <button onclick="masterPower(false)" class="p-4 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2">
+                            <i data-lucide="power-off" class="w-5 h-5 text-rose-400"></i>
+                            <span>Matikan Semua AC</span>
+                        </button>
+                        <button id="btnEcoMode" onclick="toggleEcoMode()" class="p-4 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2">
+                            <i data-lucide="leaf" class="w-5 h-5 text-emerald-400"></i>
+                            <span id="ecoBtnText">Aktifkan Eco Mode (24°C)</span>
+                        </button>
+                    </div>
+
+                    <!-- Preset Modes -->
+                    <div class="pt-6 border-t border-slate-800">
+                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-4">Mode Preset Aktivitas Kampus</h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <button onclick="applyPreset('lecture')" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left transition-all">
+                                <div class="flex items-center space-x-2 text-blue-400 mb-1">
+                                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                                    <span class="text-xs font-bold">Jam Perkuliahan</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400">Set 21°C • Fan Auto</p>
+                            </button>
+                            <button onclick="applyPreset('exam')" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left transition-all">
+                                <div class="flex items-center space-x-2 text-amber-400 mb-1">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                                    <span class="text-xs font-bold">Ujian Semestral</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400">Set 20°C • Fan Med</p>
+                            </button>
+                            <button onclick="applyPreset('holiday')" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left transition-all">
+                                <div class="flex items-center space-x-2 text-rose-400 mb-1">
+                                    <i data-lucide="sun" class="w-4 h-4"></i>
+                                    <span class="text-xs font-bold">Hari Libur</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400">Matikan Semua Unit</p>
+                            </button>
+                            <button onclick="applyPreset('night')" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left transition-all">
+                                <div class="flex items-center space-x-2 text-indigo-400 mb-1">
+                                    <i data-lucide="moon" class="w-4 h-4"></i>
+                                    <span class="text-xs font-bold">Malam Hari</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400">Set 25°C • Eco Fan</p>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 3: DAFTAR PERANGKAT LENGKAP -->
+            <div id="tab-devices" class="tab-content space-y-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm">Inventaris Seluruh Unit AC Kampus</h3>
+                        <p class="text-xs text-slate-400">Kelola dan pantau seluruh status fisik perangkat.</p>
+                    </div>
+                    <button onclick="toggleModal('modalAddDevice', true)" class="bg-blue-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold">
+                        + Tambah Perangkat
+                    </button>
+                </div>
+                <!-- Device Table View -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Nama Perangkat / Ruangan</th>
+                                <th class="p-4">Gedung</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Suhu Target</th>
+                                <th class="p-4">Mode / Fan</th>
+                                <th class="p-4">Daya (Watts)</th>
+                                <th class="p-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deviceTableBody" class="divide-y divide-slate-100 font-medium"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 4: JADWAL OTOMATIS -->
+            <div id="tab-schedules" class="tab-content space-y-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm">Pengaturan Timers & Schedule Otomatis</h3>
+                        <p class="text-xs text-slate-400">Jadwalkan operasi nyala/mati otomatis untuk menghemat listrik kampus.</p>
+                    </div>
+                    <button onclick="showToast('Jadwal otomatis berhasil disinkronkan!')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all">
+                        Simpan Perubahan Jadwal
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-slate-800 text-xs">Jadwal Operasi Sen-Jum (Hari Kuliah)</span>
+                            <span class="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded-full font-bold">Aktif</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-xs text-slate-600">
+                            <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
+                            <span>Otamatis Nyala: <strong>07:00 WIB</strong> (Target: 22°C)</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-xs text-slate-600">
+                            <i data-lucide="moon" class="w-4 h-4 text-indigo-500"></i>
+                            <span>Otamatis Mati: <strong>18:00 WIB</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-slate-800 text-xs">Jadwal Akhir Pekan (Sabtu-Minggu)</span>
+                            <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded-full font-bold">Hemat Energi</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-xs text-slate-600">
+                            <i data-lucide="power" class="w-4 h-4 text-rose-500"></i>
+                            <span>Hanya AC Lab Komputer & Rektorat yang Beroperasi (08:00 - 14:00)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: ANALITIK DAYA -->
+            <div id="tab-analytics" class="tab-content space-y-4">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Konsumsi Daya Listrik HVAC (kWh)</h3>
+                            <p class="text-xs text-slate-400">Grafik penggunaan energi harian di seluruh fasilitas universitas.</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="updateChartData('daily')" class="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100">Harian</button>
+                            <button onclick="updateChartData('weekly')" class="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-200">Mingguan</button>
+                        </div>
+                    </div>
+
+                    <!-- Simple Interactive SVG Bar Chart -->
+                    <div class="h-56 w-full flex items-end space-x-3 sm:space-x-6 pt-6 pb-2 border-b border-slate-100" id="chartBars">
+                        <!-- Bars dynamically populated via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: PEMELIHARAAN / MAINTENANCE -->
+            <div id="tab-maintenance" class="tab-content space-y-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-sm">Jadwal & Laporan Pemeliharaan Filter AC</h3>
+                    <p class="text-xs text-slate-400">Monitor kesehatan unit filter dan jadwal servis rutin teknisi.</p>
+                </div>
+                <div class="space-y-3" id="maintenanceList"></div>
+            </div>
+
+            <!-- TAB 7: PENGATURAN SYSTEM -->
+            <div id="tab-settings" class="tab-content space-y-4">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 max-w-2xl">
+                    <h3 class="font-bold text-slate-800 text-sm border-b border-slate-100 pb-3">Pengaturan Parameter System</h3>
+                    <div class="space-y-4 text-xs">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-slate-800">Notifikasi Otomatis Filter Kotor</p>
+                                <p class="text-slate-400 text-[11px]">Kirim alert jika unit AC telah beroperasi > 500 jam.</p>
+                            </div>
+                            <input type="checkbox" checked class="w-4 h-4 accent-blue-600">
+                        </div>
+                        <div class="flex items-center justify-between border-t border-slate-100 pt-3">
+                            <div>
+                                <p class="font-bold text-slate-800">Batas Maksimum Suhu Dingin</p>
+                                <p class="text-slate-400 text-[11px]">Cegah penggunan suhu di bawah 18°C untuk menghemat daya.</p>
+                            </div>
+                            <input type="number" value="18" class="w-16 p-1.5 bg-slate-100 rounded-lg text-center font-bold">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODAL 1: TAMBAH PERANGKAT AC BARU -->
+    <div id="modalAddDevice" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-all duration-200 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 transition-all duration-200" id="modalAddContent">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Tambah Unit AC Baru</h3>
+                <button onclick="toggleModal('modalAddDevice', false)" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="addDeviceForm" onsubmit="handleAddDevice(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Ruangan / Kode Unit</label>
+                    <input type="text" id="inputName" required placeholder="Contoh: R. Kuliah 204" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Lokasi Gedung</label>
+                    <select id="inputBuilding" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Gedung Rektorat">Gedung Rektorat</option>
+                        <option value="Fakultas Teknik">Fakultas Teknik</option>
+                        <option value="FMIPA">FMIPA</option>
+                        <option value="Perpustakaan Pusat">Perpustakaan Pusat</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Kapasitas (PK)</label>
+                        <select id="inputCapacity" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="1 PK">1 PK (800W)</option>
+                            <option value="1.5 PK">1.5 PK (1200W)</option>
+                            <option value="2 PK">2 PK (1800W)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Suhu Default (°C)</label>
+                        <input type="number" id="inputTemp" min="16" max="30" value="22" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="pt-4 flex items-center justify-end space-x-3 border-t border-slate-100">
+                    <button type="button" onclick="toggleModal('modalAddDevice', false)" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-all">Batal</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition-all">Simpan Unit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: DETAIL DIAGNOSTIK UNIT AC -->
+    <div id="modalDiagnostic" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-all duration-200 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 transition-all duration-200" id="modalDiagContent">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Diagnostik Unit AC</h3>
+                <button onclick="toggleModal('modalDiagnostic', false)" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4 text-xs" id="diagDetails">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // Data Perangkat AC (State Utama)
+        let devices = [
+            { id: 1, name: "Ruang Rapat Utama", building: "Gedung Rektorat", temp: 21, isOn: true, mode: "cool", fan: "auto", powerWatts: 1200, filterDirty: false },
+            { id: 2, name: "Lab Komputer 1", building: "Fakultas Teknik", temp: 20, isOn: true, mode: "cool", fan: "high", powerWatts: 1800, filterDirty: true },
+            { id: 3, name: "Auditorium Lt. 2", building: "Gedung Rektorat", temp: 24, isOn: false, mode: "cool", fan: "medium", powerWatts: 2000, filterDirty: false },
+            { id: 4, name: "Ruang Dosen Kimia", building: "FMIPA", temp: 23, isOn: true, mode: "dry", fan: "low", powerWatts: 800, filterDirty: false },
+            { id: 5, name: "Ruang Baca Utama", building: "Perpustakaan Pusat", temp: 22, isOn: true, mode: "cool", fan: "auto", powerWatts: 1500, filterDirty: false },
+            { id: 6, name: "Lab Fisika Dasar", building: "FMIPA", temp: 25, isOn: false, mode: "fan", fan: "medium", powerWatts: 800, filterDirty: false },
+            { id: 7, name: "Ruang Kuliah 101", building: "Fakultas Teknik", temp: 22, isOn: true, mode: "cool", fan: "auto", powerWatts: 1200, filterDirty: false },
+            { id: 8, name: "Ruang Dekan Teknik", building: "Fakultas Teknik", temp: 21, isOn: true, mode: "cool", fan: "low", powerWatts: 1000, filterDirty: false }
+        ];
+
+        let selectedBuilding = 'all';
+        let isEcoModeActive = false;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            renderDevices();
+            updateStats();
+            renderTableDevices();
+            renderMaintenanceList();
+            updateChartData('daily');
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            // Update active content
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) targetTab.classList.add('active');
+
+            // Update sidebar button style
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                btn.classList.add('text-slate-400');
+            });
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+                activeBtn.classList.remove('text-slate-400');
+            }
+
+            // Update Page Title
+            const titles = {
+                'dashboard': 'Dashboard Utama',
+                'control-center': 'Pusat Kontrol Massal',
+                'devices': 'Daftar Perangkat AC',
+                'schedules': 'Jadwal Otomatis',
+                'analytics': 'Analitik Daya Listrik',
+                'maintenance': 'Pemeliharaan Filter & Servis',
+                'settings': 'Pengaturan Sistem'
+            };
+            document.getElementById('pageTitle').innerText = titles[tabId] || 'Dashboard AC';
+        }
+
+        // Render Cards Perangkat AC
+        function renderDevices() {
+            const grid = document.getElementById('deviceGrid');
+            const emptyState = document.getElementById('emptyState');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const statusVal = document.getElementById('statusFilter').value;
+
+            const filtered = devices.filter(d => {
+                const matchBuilding = selectedBuilding === 'all' || d.building === selectedBuilding;
+                const matchSearch = d.name.toLowerCase().includes(searchVal) || d.building.toLowerCase().includes(searchVal);
+                const matchStatus = statusVal === 'all' || (statusVal === 'on' && d.isOn) || (statusVal === 'off' && !d.isOn);
+                return matchBuilding && matchSearch && matchStatus;
+            });
+
+            document.getElementById('deviceCountBadge').innerText = filtered.length;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            grid.innerHTML = filtered.map(device => `
+                <div class="bg-white rounded-2xl border ${device.isOn ? 'border-blue-200 shadow-sm' : 'border-slate-200 opacity-80'} p-5 transition-all hover:shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">${device.building}</span>
+                                <h4 class="font-bold text-slate-800 text-sm mt-1.5 flex items-center space-x-1">
+                                    <span>${device.name}</span>
+                                    ${device.filterDirty ? '<span class="w-2 h-2 rounded-full bg-amber-500" title="Filter Kotor"></span>' : ''}
+                                </h4>
+                            </div>
+                            <button onclick="togglePower(${device.id})" class="p-2.5 rounded-xl transition-all ${device.isOn ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}" title="Sakelar Power">
+                                <i data-lucide="power" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <!-- Suhu display -->
+                        <div class="my-4 flex items-center justify-between">
+                            <div>
+                                <div class="text-3xl font-extrabold ${device.isOn ? 'text-slate-800' : 'text-slate-400'} flex items-start">
+                                    <span>${device.temp}</span>
+                                    <span class="text-sm font-bold text-slate-400 ml-0.5">°C</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400">${device.isOn ? 'Pendinginan Aktif' : 'Non-aktif'}</p>
+                            </div>
+
+                            <div class="flex items-center space-x-1.5 bg-slate-50 border border-slate-100 p-1 rounded-xl">
+                                <button onclick="changeTemp(${device.id}, -1)" ${!device.isOn ? 'disabled' : ''} class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-100 disabled:opacity-40">-</button>
+                                <button onclick="changeTemp(${device.id}, 1)" ${!device.isOn ? 'disabled' : ''} class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-100 disabled:opacity-40">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mode & Diagnostic Footer -->
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex space-x-1">
+                            <button onclick="setMode(${device.id}, 'cool')" ${!device.isOn ? 'disabled' : ''} class="px-2 py-0.5 rounded text-[10px] font-bold ${device.mode === 'cool' ? 'bg-blue-100 text-blue-600' : 'text-slate-400'}">COOL</button>
+                            <button onclick="setMode(${device.id}, 'dry')" ${!device.isOn ? 'disabled' : ''} class="px-2 py-0.5 rounded text-[10px] font-bold ${device.mode === 'dry' ? 'bg-blue-100 text-blue-600' : 'text-slate-400'}">DRY</button>
+                        </div>
+                        <button onclick="openDiagnostic(${device.id})" class="text-blue-600 text-[11px] font-bold hover:underline flex items-center space-x-1">
+                            <i data-lucide="activity" class="w-3 h-3"></i>
+                            <span>Detail</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // Render Table Devices for "Perangkat" Tab
+        function renderTableDevices() {
+            const body = document.getElementById('deviceTableBody');
+            body.innerHTML = devices.map(d => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-4 font-bold text-slate-800">${d.name}</td>
+                    <td class="p-4">${d.building}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded-full text-[10px] font-bold ${d.isOn ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
+                            ${d.isOn ? 'ON' : 'OFF'}
+                        </span>
+                    </td>
+                    <td class="p-4 font-bold">${d.temp}°C</td>
+                    <td class="p-4 uppercase text-[10px]">${d.mode} / ${d.fan}</td>
+                    <td class="p-4 font-mono">${d.isOn ? d.powerWatts + ' W' : '0 W'}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="togglePower(${d.id})" class="text-xs text-blue-600 font-bold hover:underline">Toggle Power</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render Maintenance List
+        function renderMaintenanceList() {
+            const container = document.getElementById('maintenanceList');
+            const dirtyDevices = devices.filter(d => d.filterDirty);
+            
+            if (dirtyDevices.length === 0) {
+                container.innerHTML = '<div class="p-4 bg-white rounded-xl text-xs text-slate-500">Semua unit AC dalam keadaan bersih dan prima.</div>';
+                return;
+            }
+
+            container.innerHTML = dirtyDevices.map(d => `
+                <div class="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                            <i data-lucide="wrench" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-800">${d.name} (${d.building})</p>
+                            <p class="text-[10px] text-slate-400">Peringatan: Filter debu melebihi batas 80%</p>
+                        </div>
+                    </div>
+                    <button onclick="cleanFilter(${d.id})" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-bold text-[11px] hover:bg-emerald-700">Tandai Selesai</button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // Action Handlers
+        function togglePower(id) {
+            const device = devices.find(d => d.id === id);
+            if (device) {
+                device.isOn = !device.isOn;
+                showToast(`AC ${device.name} berhasi ${device.isOn ? 'dinyalakan' : 'dimatikan'}`);
+                renderDevices();
+                renderTableDevices();
+                updateStats();
+            }
+        }
+
+        function changeTemp(id, delta) {
+            const device = devices.find(d => d.id === id);
+            if (device && device.isOn) {
+                const next = device.temp + delta;
+                if (next >= 16 && next <= 30) {
+                    device.temp = next;
+                    renderDevices();
+                    renderTableDevices();
+                    updateStats();
+                }
+            }
+        }
+
+        function setMode(id, mode) {
+            const device = devices.find(d => d.id === id);
+            if (device && device.isOn) {
+                device.mode = mode;
+                renderDevices();
+            }
+        }
+
+        function cleanFilter(id) {
+            const device = devices.find(d => d.id === id);
+            if (device) {
+                device.filterDirty = false;
+                showToast(`Filter AC ${device.name} telah dibersihkan.`);
+                renderDevices();
+                renderMaintenanceList();
+            }
+        }
+
+        // Master Control Functions
+        function masterPower(status) {
+            devices.forEach(d => d.isOn = status);
+            showToast(status ? "Seluruh AC dinyalakan" : "Seluruh AC dimatikan");
+            renderDevices();
+            renderTableDevices();
+            updateStats();
+        }
+
+        function toggleEcoMode() {
+            isEcoModeActive = !isEcoModeActive;
+            const btnText = document.getElementById('ecoBtnText');
+            if (isEcoModeActive) {
+                devices.forEach(d => { if (d.isOn) { d.temp = 24; d.fan = 'low'; } });
+                btnText.innerText = 'Eco Mode Aktif (24°C)';
+                showToast("Eco Mode Aktif: Suhu diset 24°C");
+            } else {
+                btnText.innerText = 'Aktifkan Eco Mode (24°C)';
+                showToast("Eco Mode Dinonaktifkan");
+            }
+            renderDevices();
+            updateStats();
+        }
+
+        function applyPreset(presetType) {
+            if (presetType === 'lecture') {
+                devices.forEach(d => { d.isOn = true; d.temp = 21; d.fan = 'auto'; });
+                showToast("Preset Kuliah Aktif: 21°C Auto Fan");
+            } else if (presetType === 'exam') {
+                devices.forEach(d => { d.isOn = true; d.temp = 20; d.fan = 'medium'; });
+                showToast("Preset Ujian Aktif: 20°C Hening");
+            } else if (presetType === 'holiday') {
+                devices.forEach(d => d.isOn = false);
+                showToast("Preset Libur Aktif: Semua AC OFF");
+            } else if (presetType === 'night') {
+                devices.forEach(d => { if (d.isOn) d.temp = 25; });
+                showToast("Preset Malam Aktif: 25°C Smart Save");
+            }
+            renderDevices();
+            renderTableDevices();
+            updateStats();
+        }
+
+        // Diagnostic Modal
+        function openDiagnostic(id) {
+            const device = devices.find(d => d.id === id);
+            if (!device) return;
+
+            const content = document.getElementById('diagDetails');
+            content.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex justify-between border-b border-slate-100 pb-2">
+                        <span class="text-slate-400">Unit:</span>
+                        <span class="font-bold text-slate-800">${device.name}</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-100 pb-2">
+                        <span class="text-slate-400">Status Filter:</span>
+                        <span class="font-bold ${device.filterDirty ? 'text-amber-600' : 'text-emerald-600'}">
+                            ${device.filterDirty ? 'Perlu Dibersihkan' : 'Sangat Baik ( clean )'}
+                        </span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-100 pb-2">
+                        <span class="text-slate-400">Konsumsi Energi:</span>
+                        <span class="font-bold text-slate-800">${device.powerWatts} Watts</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Waktu Operasi Hari Ini:</span>
+                        <span class="font-bold text-slate-800">6 Jam 20 Menit</span>
+                    </div>
+                </div>
+            `;
+            toggleModal('modalDiagnostic', true);
+        }
+
+        // Update Stats Overview
+        function updateStats() {
+            const total = devices.length;
+            const active = devices.filter(d => d.isOn);
+            const activeCount = active.length;
+            const inactiveCount = total - activeCount;
+
+            const avgTemp = activeCount > 0 ? (active.reduce((acc, curr) => acc + curr.temp, 0) / activeCount).toFixed(1) : 0;
+            const powerKW = (active.reduce((acc, curr) => acc + curr.powerWatts, 0) / 1000).toFixed(2);
+
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statActive').innerHTML = `${activeCount} <span class="text-xs font-normal text-slate-500">Aktif</span>`;
+            document.getElementById('statInactive').innerText = `${inactiveCount} Non-aktif`;
+            document.getElementById('statAvgTemp').innerText = activeCount > 0 ? `${avgTemp}°C` : '--°C';
+            document.getElementById('statPower').innerText = `${powerKW} kW`;
+
+            const percent = total > 0 ? (activeCount / total) * 100 : 0;
+            document.getElementById('statActiveBar').style.width = `${percent}%`;
+        }
+
+        // Chart SVG generator for Analytics
+        function updateChartData(type) {
+            const container = document.getElementById('chartBars');
+            const data = type === 'daily' 
+                ? [40, 65, 80, 95, 70, 45, 30] 
+                : [300, 420, 510, 480, 600, 390, 250];
+
+            const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+
+            container.innerHTML = data.map((val, idx) => `
+                <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                    <div class="w-full bg-blue-500 rounded-t-lg transition-all duration-300 hover:bg-blue-600" style="height: ${val / (type === 'daily' ? 1 : 7)}%"></div>
+                    <span class="text-[10px] font-bold text-slate-400">${days[idx]}</span>
+                </div>
+            `).join('');
+        }
+
+        // Filters & Utilities
+        function filterBuilding(name) {
+            selectedBuilding = name;
+            renderDevices();
+        }
+
+        function toggleNotifications() {
+            document.getElementById('notifDropdown').classList.toggle('hidden');
+        }
+
+        function clearNotifications() {
+            document.getElementById('notifList').innerHTML = '<p class="text-[11px] text-slate-400 text-center py-2">Tidak ada notifikasi baru</p>';
+            document.getElementById('notifBadge').classList.add('hidden');
+        }
+
+        function toggleModal(id, show) {
+            const modal = document.getElementById(id);
+            if (show) modal.classList.remove('hidden', 'opacity-0');
+            else modal.classList.add('hidden', 'opacity-0');
+        }
+
+        function handleAddDevice(e) {
+            e.preventDefault();
+            const name = document.getElementById('inputName').value;
+            const building = document.getElementById('inputBuilding').value;
+            const temp = parseInt(document.getElementById('inputTemp').value);
+
+            devices.unshift({
+                id: Date.now(),
+                name, building, temp,
+                isOn: true, mode: "cool", fan: "auto", powerWatts: 1200, filterDirty: false
+            });
+
+            renderDevices();
+            renderTableDevices();
+            updateStats();
+            toggleModal('modalAddDevice', false);
+            showToast(`Unit ${name} berhasil ditambahkan`);
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2 border border-slate-700 pointer-events-auto';
+            toast.innerHTML = `<i data-lucide="info" class="w-4 h-4 text-blue-400"></i><span>${msg}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
